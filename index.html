@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        html { scroll-behavior: smooth; }
+
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --accent: #0ea5e9;
+            --text-main: #1e293b;
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --section-spacing: 90px;
+            --item-bg: rgba(225, 230, 240, 0.8);
+        }
+
+        body.dark-mode {
+            --bg-color: #020617;
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --accent: #818cf8;
+            --text-main: #f8fafc;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --item-bg: var(--card-bg);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+            background-color: var(--bg-color); color: var(--text-main);
+            min-height: 100vh; display: flex; justify-content: center;
+            padding: 60px 20px; direction: rtl; overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .bg-glow {
+            position: fixed; top: -10%; left: -10%; width: 500px; height: 500px;
+            background: var(--accent); filter: blur(140px); opacity: 0.1; 
+            border-radius: 50%; z-index: -1; animation: floatGlow 20s infinite alternate;
+        }
+        @keyframes floatGlow { 100% { transform: translate(30%, 30%); } }
+
+        @keyframes waterWave {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Scroll Animation Class */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .container {
+            width: 100%; max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border);
+            border-radius: 60px; padding: 70px 45px;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .top-nav {
+            position: absolute; top: 35px; right: 45px;
+            display: flex; gap: 12px; z-index: 20;
+        }
+        .nav-btn {
+            text-decoration: none; color: var(--text-main); padding: 10px 18px;
+            border-radius: 16px; background: var(--glass-border);
+            font-weight: 600; font-size: 0.85rem; border: 1px solid var(--glass-border);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .nav-btn:hover { background: var(--accent); color: white; transform: translateY(-3px); }
+
+        .theme-switch {
+            position: absolute; top: 35px; left: 45px; cursor: pointer;
+            background: var(--item-bg); width: 45px; height: 45px;
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; border: 1px solid var(--glass-border); z-index: 20;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .theme-switch:hover { transform: translateY(-5px) rotate(25deg); background: var(--accent); color: white; }
+
+        .header-section { text-align: center; margin-bottom: var(--section-spacing); padding-top: 30px; }
+        
+        .profile-wrapper {
+            width: 160px; height: 160px; margin: 0 auto 30px;
+            border-radius: 50%; border: 6px solid var(--accent);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden; cursor: pointer;
+            animation: waterWave 3s ease-in-out infinite;
+            transition: border-radius 0.8s ease-in-out, transform 0.4s ease, border-color 0.4s ease;
+            will-change: border-radius;
+        }
+        .profile-wrapper:hover { transform: translateY(-15px); border-color: var(--text-main); animation: none; border-radius: 50%; }
+        #profileImage { width: 100%; height: 100%; object-fit: cover; }
+
+        .name-tag { font-size: 3.2rem; font-weight: 800; margin-bottom: 10px; }
+        
+        .location-box {
+            display: inline-block; padding: 10px 25px; background: var(--glass-border);
+            border-radius: 50px; margin: 10px auto; font-weight: 600;
+            border: 1px solid var(--accent); color: var(--accent);
+            text-decoration: underline; cursor: pointer;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .location-box:hover { transform: scale(1.05); background: var(--accent); color: white; }
+
+        #bio { max-width: 650px; margin: 25px auto; line-height: 1.9; font-size: 1.1rem; opacity: 0.85; }
+
+        .social-box {
+            background: rgba(0,0,0,0.02); border-radius: 50px; padding: 30px 60px;
+            border: 1px solid var(--glass-border); margin: 50px auto 0; max-width: 850px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .social-box:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); }
+        .social-box h3 { margin-bottom: 25px; font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+
+        .social-links { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; }
+        .social-links a { 
+            width: 55px; height: 55px; border-radius: 16px; 
+            background: var(--glass-border); display: flex; align-items: center; 
+            justify-content: center; color: var(--text-main); text-decoration: none;
+            font-size: 1.6rem;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .social-links a:hover { transform: translateY(-8px) scale(1.1); background: var(--accent); color: white; }
+
+        .section-wrapper { margin-bottom: var(--section-spacing); scroll-margin-top: 120px; }
+        .section-title { margin-bottom: 35px; display: flex; align-items: center; gap: 15px; font-size: 1.7rem; font-weight: 800; }
+        .section-title i { transition: transform 0.3s ease; }
+        .section-title:hover i { transform: scale(1.2) rotate(10deg); }
+
+        /* صندوق المهارات الموحد */
+        .skills-main-box {
+            background: rgba(0,0,0,0.02); border-radius: 40px; padding: 40px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .skills-main-box:hover { transform: translateY(-15px); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.1); border-color: var(--accent); }
+
+        .skills-header {
+            padding: 0 25px 20px; border-bottom: 2px solid var(--glass-border);
+            margin-bottom: 25px; font-weight: 800; color: var(--accent); font-size: 0.95rem;
+        }
+        
+        .skill-item {
+            background: var(--card-bg); border-radius: 20px; padding: 22px 25px;
+            margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr 1fr;
+            align-items: center; border: 1px solid transparent; text-align: center;
+            opacity: 0; animation: slideUp 0.5s ease forwards;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .skill-item:hover {
+            transform: scale(1.02) !important;
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 35px; }
+        .work-card { 
+            background: var(--item-bg); border-radius: 40px; 
+            overflow: hidden; border: 1px solid var(--glass-border);
+            text-decoration: none; color: inherit;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .work-card:hover { transform: translateY(-15px); border-color: var(--accent); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.2); }
+        .work-img { width: 100%; height: 210px; object-fit: cover; }
+        .work-info { padding: 30px; }
+
+        /* Testimonial Slider */
+        .testimonial-slider-container {
+            position: relative;
+            padding: 0 50px; /* Space for arrows */
+        }
+        .testimonial-slider {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+            overflow: hidden;
+        }
+        .testimonial-track {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        .testimonial-card {
+            width: 220px;
+            padding: 25px;
+            background: var(--item-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            text-align: center;
+            flex-shrink: 0;
+            opacity: 0.7;
+            transform: scale(0.85);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .testimonial-card.center {
+            opacity: 1;
+            transform: scale(1);
+            z-index: 10;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.15);
+        }
+        .testimonial-card p { font-size: 0.9rem; line-height: 1.7; margin-bottom: 15px; }
+        .testimonial-card h5 { font-weight: 800; color: var(--accent); }
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--glass-border);
+            border: 1px solid transparent;
+            color: var(--text-main);
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+        .slider-arrow:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .slider-arrow.prev { left: 0; }
+        .slider-arrow.next { right: 0; }
+
+        /* Reviews Section */
+        .review-form {
+            background: rgba(0, 0, 0, 0.06); color: var(--text-main);
+            padding: 30px; border-radius: 30px;
+            border: 1px solid var(--glass-border); margin-bottom: 40px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 15px; border-radius: 15px;
+            border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1);
+            color: var(--text-main); font-family: inherit; outline: none;
+            transition: border-color 0.3s; resize: vertical;
+        }
+        .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+        
+        .star-rating { display: flex; gap: 10px; font-size: 1.8rem; color: #94a3b8; cursor: pointer; margin-bottom: 15px; direction: ltr; justify-content: flex-end; }
+        .star-rating .fa-star { transition: color 0.2s; }
+        .star-rating .fa-star.selected { color: #fbbf24; }
+        .submit-btn {
+            background: var(--accent); color: white; border: none;
+            padding: 12px 30px; border-radius: 15px; font-weight: 800;
+            cursor: pointer; transition: transform 0.2s; width: 100%;
+        }
+        .submit-btn:hover { transform: scale(1.02); }
+        /* Reviews Slider Styles */
+        .reviews-slider-container {
+            position: relative; width: 100%; height: 320px;
+            display: flex; justify-content: center; align-items: center;
+            perspective: 1000px; margin-top: 20px;
+        }
+        .reviews-slider-track {
+            position: relative; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .review-card {
+            position: absolute; width: 260px; height: 260px;
+            background: var(--item-bg); border: 1px solid var(--glass-border);
+            border-radius: 30px; padding: 25px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0; transform: translateX(0) scale(0.5); z-index: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .review-card.active { opacity: 1; transform: translateX(0) scale(1.1); z-index: 10; border-color: var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        .review-card.prev { opacity: 0.5; transform: translateX(-220px) scale(0.85); z-index: 5; cursor: pointer; }
+        .review-card.next { opacity: 0.5; transform: translateX(220px) scale(0.85); z-index: 5; cursor: pointer; }
+        
+        .review-card h4 { color: var(--accent); margin-bottom: 10px; font-size: 1.2rem; }
+        .review-card p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .slider-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 50px; height: 50px; border-radius: 50%; background: var(--glass-border);
+            border: 1px solid var(--accent); color: var(--accent); font-size: 1.2rem;
+            cursor: pointer; z-index: 20; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .slider-btn:hover { background: var(--accent); color: white; transform: translateY(-50%) scale(1.1); }
+        .slider-btn.prev { left: 10px; }
+        .slider-btn.next { right: 10px; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: white; padding: 15px 30px;
+            border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 10000; transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-weight: 600; display: flex; align-items: center; gap: 10px;
+        }
+        .toast.show { top: 30px; }
+
+        .footer-phrase {
+            text-align: center; margin-top: 50px; font-size: 1.2rem;
+            font-weight: 600; color: var(--text-main); opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .top-nav { position: relative; top: 0; right: 0; justify-content: center; margin-bottom: 30px; }
+            .theme-switch { position: relative; top: 0; left: 0; margin: 0 auto 30px; }
+            .skills-header { display: none; }
+            .skill-item { grid-template-columns: 1fr; gap: 10px; }
+            .name-tag { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+<div class="bg-glow"></div>
+
+<div class="container">
+    <nav class="top-nav">
+        <a href="#sec-profile" class="nav-btn">الرئيسية</a>
+        <a href="#sec-skills" class="nav-btn">المهارات</a>
+        <a href="#sec-trophies" class="nav-btn">الإنجازات</a>
+        <a href="#sec-reviews" class="nav-btn">اراء الزوار</a>
+        <a href="#sec-reviews" class="nav-btn">قيمنا</a>
+    </nav>
+
+    <div id="themeToggle" class="theme-switch">🌙</div>
+
+    <header class="header-section" id="sec-profile">
+        <div class="profile-wrapper">
+            <img id="profileImage" src="" style="display:none;">
+        </div>
+        <h1 class="name-tag" id="name">...</h1>
+        <a id="location" class="location-box" target="_blank"></a>
+        <p id="bio"></p>
+        <div class="social-box">
+            <h3 id="socialTitle"></h3>
+            <div class="social-links" id="socialLinks"></div>
+        </div>
+    </header>
+
+    <div class="section-wrapper reveal" id="sec-skills">
+        <h3 class="section-title" id="skillsTitle"><i class="fas fa-star" style="color:var(--accent)"></i> المهارات والخبرات</h3>
+        <div class="skills-main-box">
+            <div class="skills-header" id="dynamicSkillsHeader">
+                <span style="text-align:right" id="h-skill">المهارة</span>
+                <span style="text-align:center" id="h-level">الخبرة</span>
+                <span style="text-align:left" id="h-cert">الشهادة</span>
+            </div>
+            <div id="skillsContainer"></div>
+        </div>
+    </div>
+
+    <div class="section-wrapper reveal" id="sec-trophies">
+        <h3 class="section-title" id="trophiesTitle"><i class="fas fa-award" style="color:var(--accent)"></i> معرض الإنجازات</h3>
+        <div id="trophiesContainer" class="portfolio-grid"></div>
+    </div>
+
+    <div class="section-wrapper reveal" id="sec-testimonials">
+        <h3 class="section-title" id="testimonialsTitle"><i class="fas fa-comments" style="color:var(--accent)"></i> آراء الزوار</h3>
+        <div class="reviews-slider-container">
+            <button class="slider-btn prev" onclick="moveSlider(-1)"><i class="fas fa-chevron-left"></i></button>
+            <div class="reviews-slider-track" id="reviewsTrack"></div>
+            <button class="slider-btn next" onclick="moveSlider(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="section-wrapper reveal" id="sec-reviews">
+        <h3 class="section-title" id="reviewsTitle"><i class="fas fa-pen" style="color:var(--accent)"></i> قيمنا</h3>
+        
+        <div class="review-form">
+            <div class="form-group">
+                <input type="text" id="reviewName" class="form-input" placeholder="الاسم الكريم">
+            </div>
+            <div class="star-rating" id="starRating">
+                <i class="fas fa-star" data-val="1"></i>
+                <i class="fas fa-star" data-val="2"></i>
+                <i class="fas fa-star" data-val="3"></i>
+                <i class="fas fa-star" data-val="4"></i>
+                <i class="fas fa-star" data-val="5"></i>
+            </div>
+            <div class="form-group">
+                <textarea id="reviewNote" class="form-textarea" rows="3" placeholder="اكتب تعليقك هنا..."></textarea>
+            </div>
+            <button onclick="submitReview()" class="submit-btn">إرسال التقييم</button>
+        </div>
+    </div>
+
+    <p id="footerPhrase" class="footer-phrase"></p>
+</div>
+
+<script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZzoMptTyaxZ_fCbYJG3xTuOFChfSdIdd3olXds_jykPik4HSeaQaTr6rLspSCThzxHEoNKfx1X-dw/pub?output=csv";
+    const GIDS = { profile: "0", skills: "1666677096", trophies: "1028968325", social: "1464424670", reviews: "1890749168" }; // ضع هنا رقم gid لورقة reviews
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbySWCucklP5aHx6IRgjlBmOQpjw2BaNrxQ4rnrMPpkE7u3fLpAu_Y-i9LLb-IhO70tD/exec"; // ضع هنا رابط Web App URL الذي نسخته من Apps Script
+
+    function parseCSV(text) {
+        const rows = [];
+        let row = [];
+        let val = ""; 
+        let inQuote = false;
+        text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') {
+                if (inQuote && text[i+1] === '"') { val += '"'; i++; }
+                else { inQuote = !inQuote; }
+            } else if (char === ',' && !inQuote) {
+                row.push(val.trim()); val = "";
+            } else if (char === '\n' && !inQuote) {
+                row.push(val.trim()); rows.push(row); row = []; val = "";
+            } else {
+                val += char;
+            }
+        }
+        if (val || row.length) { row.push(val.trim()); rows.push(row); }
+        return rows;
+    }
+
+    async function fetchGid(gid) {
+        const r = await fetch(`${SHEET_URL}&gid=${gid}&cb=${Date.now()}`, { cache: "no-store" });
+        const t = await r.text();
+        // التحقق مما إذا كان الرد عبارة عن صفحة خطأ HTML بدلاً من بيانات CSV
+        if(t.includes("<html") || t.includes("<!DOCTYPE")) {
+            console.error("تنبيه: لم يتم العثور على البيانات. تأكد من أن الورقة (Sheet) ذات الرقم " + gid + " مشمولة في خيارات 'Publish to web'.");
+            return [];
+        }
+        return parseCSV(t);
+    }
+
+    const icons = { 'x': 'fa-brands fa-x-twitter', 'instagram': 'fa-brands fa-instagram', 'youtube': 'fa-brands fa-youtube', 'snapchat': 'fa-brands fa-snapchat', 'tiktok': 'fa-brands fa-tiktok', 'whatsapp': 'fa-brands fa-whatsapp' };
+
+    // تعريف المتغيرات في الأعلى لتجنب الأخطاء
+    let reviewsData = [];
+    let currentReviewIndex = 0;
+    let isFirstLoad = true;
+
+    async function fetchReviewsFromScript() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`);
+            const data = await res.json();
+
+            const newReviews = [];
+            data.forEach(row => {
+                // الترتيب: تاريخ | اسم | تقييم | تعليق
+                // التحقق من وجود الاسم والتعليق لتجنب undefined
+                if (row && row[1] && row[3]) {
+                    newReviews.push({
+                        name: row[1],
+                        rating: row[2],
+                        note: row[3]
+                    });
+                }
+            });
+// تحديث البيانات فقط إذا كان هناك تغيير لتجنب التقطيع
+            if (JSON.stringify(newReviews) !== JSON.stringify(reviewsData)) {
+                reviewsData = newReviews;
+                renderReviews();
+            }
+        } catch (e) {
+            console.error("فشل تحميل التقييمات من السكربت:", e);
+        }
+    }
+
+    async function init() {
+        try {
+        // 1. بروفايل
+        const p = await fetchGid(GIDS.profile);
+        if(p[1]) {
+            document.getElementById("profileImage").src = p[1][1];
+            document.getElementById("profileImage").style.display = "block";
+            document.getElementById("name").textContent = p[2][1];
+            document.getElementById("location").textContent = p[3][1];
+            if(p[0][5]) document.getElementById("location").href = p[0][5];
+            document.getElementById("bio").textContent = p[4][1];
+            if(p[0][6]) document.getElementById("footerPhrase").textContent = p[0][6];
+        }
+        } catch(e) { console.error("Error loading profile:", e); }
+
+        try {
+        // 2. تواصل
+        const sData = await fetchGid(GIDS.social);
+        if(sData[0] && sData[0][25]) {
+            document.getElementById("socialTitle").textContent = sData[0][25];
+        }
+        if(sData[1] && sData[1][25]) {
+            document.getElementById("testimonialsTitle").innerHTML = `<i class="fas fa-quote-right" style="color:var(--accent)"></i> ${sData[1][25]}`;
+        }
+        if(sData[2] && sData[2][25]) {
+            document.getElementById("reviewsTitle").innerHTML = `<i class="fas fa-comments" style="color:var(--accent)"></i> ${sData[2][25]}`;
+        }
+        const sDiv = document.getElementById("socialLinks");
+        sData.forEach(r => {
+            const k = r[0].toLowerCase();
+            if(icons[k]) sDiv.innerHTML += `<a href="${r[1]}" target="_blank"><i class="${icons[k]}"></i></a>`;
+        });
+        } catch(e) { console.error("Error loading social:", e); }
+
+        try {
+        // 3. المهارات (تعديل لسحب العناوين من الشيت)
+        const skData = await fetchGid(GIDS.skills);
+        if(skData[0]) {
+            // سحب العناوين من الصف الأول في الشيت
+            if(skData[0][6]) document.getElementById("skillsTitle").innerHTML = `<i class="fas fa-star" style="color:var(--accent)"></i> ${skData[0][6]}`;
+            document.getElementById("h-skill").textContent = skData[0][2] || "المهارة";
+            document.getElementById("h-level").textContent = skData[0][1] || "الخبرة";
+            document.getElementById("h-cert").textContent = skData[0][0] || "الشهادة";
+        }
+        
+        const sCont = document.getElementById("skillsContainer");
+        for(let i=1; i<skData.length; i++) {
+            if(!skData[i][2]) continue;
+            sCont.innerHTML += `
+                <div class="skill-item" style="animation-delay: ${(i-1) * 0.1}s">
+                    <span style="text-align:right; font-weight:800;">${skData[i][2]}</span>
+                    <span style="text-align:center; color:var(--accent); font-weight:600;">${skData[i][1]}</span>
+                    <span style="text-align:left; font-size:0.9rem; opacity:0.7;">${skData[i][0]}</span>
+                </div>`;
+        }
+        } catch(e) { console.error("Error loading skills:", e); }
+
+        try {
+        // 4. إنجازات
+        const trData = await fetchGid(GIDS.trophies);
+        if(trData[0] && trData[0][6]) {
+            document.getElementById("trophiesTitle").innerHTML = `<i class="fas fa-award" style="color:var(--accent)"></i> ${trData[0][6]}`;
+        }
+        const tCont = document.getElementById("trophiesContainer");
+        for(let i=1; i<trData.length; i++) {
+            if(!trData[i][0]) continue;
+            tCont.innerHTML += `
+                <a href="${trData[i][3] || '#'}" class="work-card" target="_blank">
+                    <img src="${trData[i][2]}" class="work-img">
+                    <div class="work-info">
+                        <h4 style="color:var(--accent); margin-bottom:10px;">${trData[i][0]}</h4>
+                        <p style="font-size:0.95rem; line-height:1.6; opacity:0.8;">${trData[i][1]}</p>
+                    </div>
+                </a>`;
+        }
+        } catch(e) { console.error("Error loading trophies:", e); }
+
+        // جلب التقييمات من السكربت مباشرة
+        fetchReviewsFromScript();
+    }
+
+    init();
+
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        const isDark = document.body.classList.toggle('dark-mode');
+        this.textContent = isDark ? '🌙' : '☀️';
+    });
+
+    // Scroll Animation Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Review System Logic
+    let currentRating = 0;
+    const stars = document.querySelectorAll('#starRating .fa-star');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = this.getAttribute('data-val');
+            stars.forEach(s => {
+                s.classList.toggle('selected', s.getAttribute('data-val') <= currentRating);
+            });
+        });
+    });
+
+    function renderReviews() {
+        const track = document.getElementById('reviewsTrack');
+        if(!track) return;
+        track.innerHTML = '';
+        
+        if(reviewsData.length === 0) {
+            track.innerHTML = '<div style="text-align:center; width:100%; opacity:0.6; font-weight:600; padding: 20px;">لا توجد تعليقات حالياً، كن أول من يقيمنا!</div>';
+            return;
+        }
+
+        reviewsData.forEach((rev, i) => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            const stars = parseInt(rev.rating) || 5;
+            card.innerHTML = `
+                <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h4>${rev.name}</h4>
+                    <div style="color:#fbbf24;">${'<i class="fas fa-star"></i>'.repeat(stars)}</div>
+                </div>
+                <p>"${rev.note}"</p>
+            `;
+            // Allow clicking side cards to navigate
+            card.onclick = () => {
+                const len = reviewsData.length;
+                const activeIdx = (currentReviewIndex % len + len) % len;
+                const prevIdx = (activeIdx - 1 + len) % len;
+                const nextIdx = (activeIdx + 1) % len;
+                if(i === prevIdx) moveSlider(-1);
+                if(i === nextIdx) moveSlider(1);
+            };
+            track.appendChild(card);
+        });
+        updateSliderClasses();
+    }
+
+    function updateSliderClasses() {
+        const cards = document.querySelectorAll('.review-card');
+        const len = cards.length;
+        if(len === 0) return;
+
+        const activeIdx = (currentReviewIndex % len + len) % len;
+        const prevIdx = (activeIdx - 1 + len) % len;
+        const nextIdx = (activeIdx + 1) % len;
+
+        cards.forEach((card, i) => {
+            card.className = 'review-card'; // Reset
+            if(i === activeIdx) card.classList.add('active');
+            else if(i === prevIdx) card.classList.add('prev');
+            else if(i === nextIdx) card.classList.add('next');
+        });
+    }
+
+    function moveSlider(dir) {
+        if(reviewsData.length === 0) return;
+        currentReviewIndex += dir;
+        updateSliderClasses();
+    }
+
+    function showToast(message) {
+        let toast = document.getElementById('customToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'customToast';
+            toast.className = 'toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = message;
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function submitReview() {
+        const name = document.getElementById('reviewName').value;
+        const note = document.getElementById('reviewNote').value;
+        
+        if(!name || !note || currentRating == 0) {
+            showToast('<i class="fas fa-exclamation-triangle"></i> الرجاء تعبئة جميع الحقول');
+            return;
+        }
+        
+        const btn = document.querySelector('.submit-btn');
+        const originalText = btn.textContent;
+        btn.textContent = "جاري الإرسال...";
+        btn.disabled = true;
+
+        // إرسال البيانات إلى Google Sheets
+        if(SCRIPT_URL) {
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("rating", currentRating);
+            formData.append("note", note);
+            
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(() => {
+                    reviewsData.unshift({ name, rating: currentRating, note });
+                    currentReviewIndex = 0; // Show the new review
+                    renderReviews();
+                    fetchReviewsFromScript();
+                    showToast('<i class="fas fa-check-circle"></i> تم إرسال تعليقك بنجاح!');
+                    
+                    // Reset Form
+                    document.getElementById('reviewName').value = '';
+                    document.getElementById('reviewNote').value = '';
+                    currentRating = 0;
+                    stars.forEach(s => s.classList.remove('selected'));
+                })
+                .catch(e => {
+                    console.error("Error:", e);
+                    showToast('<i class="fas fa-exclamation-circle"></i> حدث خطأ في الاتصال.');
+                })
+                .finally(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                });
+        } else {
+            // في حال عدم وجود رابط سكربت
+            reviewsData.unshift({ name, rating: currentRating, note });
+            currentReviewIndex = 0;
+            renderReviews();
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    // تحديث التقييمات تلقائياً كل 5 ثوانٍ
+    setInterval(fetchReviewsFromScript, 5000);
+</script>
+</body>
+</html>
